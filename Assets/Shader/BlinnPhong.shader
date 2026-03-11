@@ -4,10 +4,10 @@ Shader "Unlit/BlinnPong"
     {
         // 光照模型
         _MainTex ("Texture", 2D) = "" {}
-        _MainTexColor ("MainTexColor", Color) = (0, 0, 0, 0)
+        _MainTexColor ("MainTexColor", Color) = (1, 1, 1, 1)
 
         // 高光
-        _HightLightColor ("HightLightColor", Color) = (0, 0, 0, 0)
+        _HightLightColor ("HightLightColor", Color) = (1, 1, 1, 1)
         _HightLightPow ("HightLightPow", Range(1, 100)) = 1
         _HightLightIntensity ("HightLightIntensity", Range(0, 1)) = 1
 
@@ -17,6 +17,10 @@ Shader "Unlit/BlinnPong"
         // 法线贴图
         _NormalTex ("NormalTex", 2D) = "" {}
         _NormalIntensity ("NormalIntensity", Range(0, 2)) = 1
+
+        // 渐变纹理
+        _GradientTex ("GradientTex", 2D) = "" {}
+        _GradientIntensity ("GradientIntensity", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -56,6 +60,10 @@ Shader "Unlit/BlinnPong"
             sampler2D _NormalTex;
             float4 _NormalTex_ST;
             float _NormalIntensity;
+
+            sampler2D _GradientTex;
+            float4 _GradientTex_ST;
+            float _GradientIntensity;
 
             struct appdata
             {
@@ -128,7 +136,7 @@ Shader "Unlit/BlinnPong"
                 // 漫反射光强度
                 float3 diffuseIntensity = max(0, dot(wNormal, lightDir));
                 // 漫反射光最终颜色
-                float3 diffuseFinally = col * diffuseIntensity;
+                float3 diffuseFinally = col * _LightColor0.rgb * diffuseIntensity;
 
                 // // 环境光(环境光颜色 * 贴图自带颜色 * 环境光强度)
                 float3 ambient = UNITY_LIGHTMODEL_AMBIENT * col * _MainTexColor.rgb * _AmbientIntensity;
