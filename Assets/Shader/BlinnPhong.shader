@@ -18,9 +18,8 @@ Shader "Unlit/BlinnPong"
         _NormalTex ("NormalTex", 2D) = "" {}
         _NormalIntensity ("NormalIntensity", Range(0, 2)) = 1
 
-        // 渐变纹理
-        _GradientTex ("GradientTex", 2D) = "" {}
-        _GradientIntensity ("GradientIntensity", Range(0, 1)) = 1
+        _SpecMask ("SpecMask", 2D) = "" {}
+        _SpecMaskIntensity ("SpecMaskIntensity", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -61,9 +60,9 @@ Shader "Unlit/BlinnPong"
             float4 _NormalTex_ST;
             float _NormalIntensity;
 
-            sampler2D _GradientTex;
-            float4 _GradientTex_ST;
-            float _GradientIntensity;
+            sampler2D _SpecMask;
+            float4 _SpecMask_ST;
+            float _SpecMaskIntensity;
 
             struct appdata
             {
@@ -130,8 +129,10 @@ Shader "Unlit/BlinnPong"
                 float isBack = max(0, dot(wNormal, lightDir)); // 取0是防止负数还渲染黑色高光
                 // 高光强度
                 float3 hlIntensity = max(0, dot(wNormal, halfDir)); // max是因为背部面不计算高光
+                // 高光遮罩
+                float3 specMask = lerp(1, tex2D(_SpecMask, i.uv).r, _SpecMaskIntensity); // 插值实现为0时不受到高光影响
                 // 高光最终颜色
-                float3 hightFinally = _LightColor0.rgb * _HightLightColor.rgb * pow(hlIntensity, _HightLightPow) * isBack * _HightLightIntensity;
+                float3 hightFinally = _LightColor0.rgb * _HightLightColor.rgb * pow(hlIntensity, _HightLightPow) * isBack * _HightLightIntensity * specMask;
 
                 // 漫反射光强度
                 float3 diffuseIntensity = max(0, dot(wNormal, lightDir));
